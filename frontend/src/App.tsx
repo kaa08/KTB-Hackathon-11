@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { analyzeVideo, getJobStatus, getResult, AnalysisResult, getFrameUrl } from './api/index';
+import { analyzeVideo, getJobStatus, getResult, AnalysisResult, getFrameUrl } from './api/fastAPI.ts';
 import YouTube, { YouTubeProps } from 'react-youtube';
 
 function App() {

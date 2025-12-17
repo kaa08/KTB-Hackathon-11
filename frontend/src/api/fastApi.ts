@@ -73,6 +73,7 @@ export interface AnalysisResult {
 
 export const analyzeVideo = async (url: string): Promise<AnalyzeResponse> => {
   const response = await api.post('/analyze', { url });
+  console.log('analyzeVideo response:', response.data);
   return response.data;
 };
 
