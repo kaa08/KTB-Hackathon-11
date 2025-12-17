@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>오늘 뭐먹지 — 쇼츠 레시피를 한눈에</title>
+    <style>
+        :root {
+            /* White base + pastel green/orange */
+            --bg: #ffffff;
+            --card: #ffffff;
+            --ink: #172233;
+            --muted: #5f6d7c;
+            --line: rgba(23, 34, 51, .10);
+
+            --g-50: #F1FBF5;
+            --g-200: #BFECCD;
+            --g-500: #45C58A;
+
+            --o-50: #FFF6EC;
+            --o-200: #FFD1A1;
+            --o-500: #FF9B4A;
+
+            --shadow: 0 14px 36px rgba(17, 24, 39, .10);
+            --shadow2: 0 10px 22px rgba(17, 24, 39, .08);
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial, "Apple SD Gothic Neo", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(900px 520px at 14% 8%, rgba(69, 197, 138, .22), transparent 60%),
+                radial-gradient(900px 520px at 86% 14%, rgba(255, 155, 74, .20), transparent 55%),
+                linear-gradient(180deg, #ffffff, #FBFCFF 75%);
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .topbar {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, .78);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background:
+                radial-gradient(14px 14px at 30% 30%, rgba(255, 255, 255, .95), transparent 62%),
+                linear-gradient(135deg, rgba(69, 197, 138, 1), rgba(255, 155, 74, 1));
+            box-shadow: 0 12px 22px rgba(17, 24, 39, .10);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::after {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .75), transparent);
+            transform: rotate(22deg);
+            animation: shine 3.0s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+
+            0%,
+            62% {
+                transform: translateX(-40%) rotate(22deg);
+                opacity: 0;
+            }
+
+            72% {
+                opacity: .95;
+            }
+
+            100% {
+                transform: translateX(40%) rotate(22deg);
+                opacity: 0;
+            }
+        }
+
+        .brand h1 {
+            font-size: 16px;
+            margin: 0;
+            letter-spacing: -.3px;
+            display: flex;
+            gap: 8px;
+            align-items: baseline;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(23, 34, 51, .10);
+            background: rgba(255, 255, 255, .85);
+            color: rgba(23, 34, 51, .70);
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pill {
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(23, 34, 51, .10);
+            background: rgba(255, 255, 255, .90);
+            color: rgba(23, 34, 51, .86);
+            font-size: 13px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            cursor: pointer;
+            transition: .15s transform, .15s box-shadow, .15s background;
+            box-shadow: var(--shadow2);
+        }
+
+        .pill:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, .98);
+            box-shadow: var(--shadow);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 14px;
+            border: 1px solid rgba(23, 34, 51, .10);
+            background:
+                radial-gradient(14px 14px at 30% 30%, rgba(255, 255, 255, .95), transparent 62%),
+                linear-gradient(135deg, rgba(255, 155, 74, .55), rgba(69, 197, 138, .55));
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+        }
+
+        /* Page layout */
+        .container {
+            width: min(1100px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 36px 0 86px;
+        }
+
+        .hero {
+            margin-top: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 14px;
+        }
+
+        .headline {
+            font-size: 46px;
+            line-height: 1.05;
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        .headline .accent {
+            background: linear-gradient(90deg, rgba(69, 197, 138, 1), rgba(255, 155, 74, 1));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .sub {
+            margin: 0;
+            font-size: 15px;
+            color: var(--muted);
+            max-width: 780px;
+            line-height: 1.6;
+        }
+
+        /* Center input */
+        .searchWrap {
+            margin-top: 24px;
+            width: min(880px, 100%);
+        }
+
+        .searchBar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .96);
+            border: 1px solid rgba(23, 34, 51, .10);
+            box-shadow: var(--shadow);
+            transition: .18s border, .18s transform, .18s box-shadow;
+        }
+
+        .searchBar:focus-within {
+            border-color: rgba(69, 197, 138, .45);
+            transform: translateY(-1px);
+            box-shadow: 0 18px 42px rgba(17, 24, 39, .12);
+        }
+
+        .icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        .input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--ink);
+            font-size: 15px;
+            padding: 4px 4px;
+        }
+
+        .input::placeholder {
+            color: rgba(95, 109, 124, .95);
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            color: rgba(23, 34, 51, .92);
+            background: linear-gradient(135deg, var(--g-200), var(--o-200));
+            border: 1px solid rgba(23, 34, 51, .08);
+            transition: .15s transform, .15s filter;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.02);
+        }
+
+        .btn:active {
+            transform: translateY(0px);
+        }
+
+        .hintRow {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            color: rgba(95, 109, 124, .95);
+            font-size: 12.5px;
+        }
+
+        .chip {
+            padding: 8px 11px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .92);
+            border: 1px solid rgba(23, 34, 51, .10);
+            cursor: pointer;
+            transition: .15s transform, .15s box-shadow, .15s background;
+            user-select: none;
+            box-shadow: var(--shadow2);
+        }
+
+        .chip:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, .98);
+            box-shadow: var(--shadow);
+        }
+
+        /* Results */
+        .result {
+            margin-top: 38px;
+            display: none;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .result.show {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+        }
+
+        @media (max-width: 980px) {
+            .headline {
+                font-size: 38px;
+            }
+
+            .result.show {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid rgba(23, 34, 51, .10);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .cardHeader {
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(23, 34, 51, .08);
+            background: linear-gradient(135deg, var(--g-50), var(--o-50));
+        }
+
+        .cardHeader h3 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: .1px;
+            color: rgba(23, 34, 51, .92);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tag {
+            font-size: 12px;
+            color: rgba(23, 34, 51, .72);
+            border: 1px solid rgba(23, 34, 51, .10);
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .88);
+        }
+
+        .cardBody {
+            padding: 18px;
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 680px) {
+            .grid2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .list {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .list li {
+            margin: 8px 0;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step {
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(23, 34, 51, .10);
+            background: rgba(255, 255, 255, .96);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .num {
+            min-width: 28px;
+            height: 28px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 900;
+            color: rgba(23, 34, 51, .92);
+            background: linear-gradient(135deg, var(--g-200), var(--o-200));
+            border: 1px solid rgba(23, 34, 51, .08);
+        }
+
+        .step p {
+            margin: 0;
+            font-size: 13.5px;
+            line-height: 1.35;
+        }
+
+        .step .t {
+            font-size: 12px;
+            color: rgba(95, 109, 124, .98);
+            margin-top: 4px;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .shot {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(23, 34, 51, .10);
+            background: rgba(255, 255, 255, .96);
+            transition: .15s transform, .15s box-shadow, .15s background;
+            cursor: pointer;
+            box-shadow: var(--shadow2);
+        }
+
+        .shot:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            background: rgba(255, 255, 255, .99);
+        }
+
+        .thumb {
+            width: 128px;
+            height: 84px;
+            border-radius: 14px;
+            border: 1px solid rgba(23, 34, 51, .10);
+            position: relative;
+            flex-shrink: 0;
+            background:
+                radial-gradient(18px 18px at 30% 30%, rgba(255, 255, 255, .95), transparent 60%),
+                linear-gradient(135deg, var(--g-200), var(--o-200));
+            overflow: hidden;
+        }
+
+        .thumb::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(0deg, rgba(23, 34, 51, .14), transparent 55%),
+                radial-gradient(70px 40px at 70% 25%, rgba(255, 255, 255, .55), transparent 60%);
+            pointer-events: none;
+        }
+
+        .timebadge {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            color: rgba(23, 34, 51, .86);
+            background: rgba(255, 255, 255, .86);
+            border: 1px solid rgba(23, 34, 51, .10);
+            backdrop-filter: blur(8px);
+        }
+
+        .shotMain {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-top: 2px;
+        }
+
+        .shotTitle {
+            font-size: 13.5px;
+            font-weight: 900;
+            margin: 0;
+        }
+
+        .shotDesc {
+            margin: 0;
+            font-size: 12.5px;
+            color: rgba(95, 109, 124, .98);
+            line-height: 1.35;
+        }
+
+        .note {
+            margin-top: 18px;
+            color: rgba(95, 109, 124, .95);
+            font-size: 12.5px;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            padding: 0 8px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 26px;
+            transform: translateX(-50%);
+            background: rgba(23, 34, 51, .88);
+            color: rgba(255, 255, 255, .95);
+            padding: 10px 12px;
+            border-radius: 14px;
+            box-shadow: 0 18px 40px rgba(17, 24, 39, .16);
+            font-size: 13px;
+            display: none;
+            max-width: min(520px, calc(100% - 24px));
+            text-align: center;
+        }
+
+        .toast.show {
+            display: block;
+            animation: pop .22s ease-out;
+        }
+
+        @keyframes pop {
+            from {
+                transform: translateX(-50%) translateY(6px);
+                opacity: .2
+            }
+
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <div class="logo" aria-hidden="true"></div>
+            <h1>
+                오늘 뭐먹지
+                <span class="badge">Shorts Recipe Helper</span>
+            </h1>
+        </div>
+
+        <div class="actions">
+            <button class="pill" id="btnSaved" type="button">
+                <span aria-hidden="true">⭐</span> 저장
+            </button>
+            <button class="pill" id="btnProfile" type="button">
+                <span class="avatar" aria-hidden="true">T</span>
+                프로필
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h2 class="headline">
+                쇼츠 레시피, <span class="accent">한눈에 따라하기</span>
+            </h2>
+            <p class="sub">
+                유튜브 쇼츠 링크만 넣으면 재료·조리 순서·타임라인 컷을 깔끔하게 정리해줘요.
+                <br />지금은 <b>UI 스케치 데모</b>라서 실제 AI 분석 대신 샘플 결과가 출력됩니다.
+            </p>
+
+            <div class="searchWrap">
+                <div class="searchBar">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M10.5 18.5a8 8 0 1 1 5.2-14.1A8 8 0 0 1 10.5 18.5Z" stroke="rgba(23,34,51,.70)"
+                            stroke-width="1.7" />
+                        <path d="M16.6 16.6 21 21" stroke="rgba(23,34,51,.55)" stroke-width="1.7"
+                            stroke-linecap="round" />
+                    </svg>
+                    <input id="urlInput" class="input"
+                        placeholder="유튜브 쇼츠 링크를 붙여넣어 주세요 (https://youtube.com/shorts/...)" autocomplete="off" />
+                    <button class="btn" id="analyzeBtn" type="button">
+                        <span aria-hidden="true">✨</span> 레시피 추출
+                    </button>
+                </div>
+
+                <div class="hintRow">
+                    <div class="chip" data-fill="https://youtube.com/shorts/abc123">예시 링크 1</div>
+                    <div class="chip" data-fill="https://youtube.com/shorts/def456">예시 링크 2</div>
+                    <div class="chip" id="chipPaste">클립보드 붙여넣기</div>
+                </div>
+            </div>
+
+            <div class="note">
+                발표 포인트: “영상 돌려보기” 대신 “타임라인 컷 + 순서화 텍스트”로 따라 하기 편해진다는 메시지.
+            </div>
+        </section>
+
+        <section class="result" id="result">
+            <div class="card">
+                <div class="cardHeader">
+                    <h3>📋 레시피 요약</h3>
+                    <span class="tag" id="recipeMeta">00:00 ~ 00:00 · 1인분</span>
+                </div>
+                <div class="cardBody">
+                    <div class="grid2">
+                        <div>
+                            <h4 style="margin:0 0 10px 0; font-size:13px;">🧺 재료</h4>
+                            <ul class="list" id="ingredients"></ul>
+                        </div>
+
+                        <div>
+                            <h4 style="margin:0 0 10px 0; font-size:13px;">🧑‍🍳 조리 순서</h4>
+                            <div class="steps" id="steps"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="cardHeader">
+                    <h3>🖼️ 타임라인 컷</h3>
+                    <span class="tag">컷 클릭 → 해당 구간(추후)</span>
+                </div>
+                <div class="cardBody">
+                    <div class="timeline" id="timeline"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const $ = (sel) => document.querySelector(sel);
+
+        const urlInput = $("#urlInput");
+        const analyzeBtn = $("#analyzeBtn");
+        const result = $("#result");
+        const ingredientsEl = $("#ingredients");
+        const stepsEl = $("#steps");
+        const timelineEl = $("#timeline");
+        const recipeMeta = $("#recipeMeta");
+        const toast = $("#toast");
+
+        const demoResponse = {
+            duration: "00:34",
+            servings: "1인분",
+            ingredients: [
+                "밥 1공기",
+                "계란 2개",
+                "대파 1/3대",
+                "간장 1큰술",
+                "굴소스 1/2큰술(선택)",
+                "버터 1조각",
+                "후추 약간"
+            ],
+            steps: [
+                { t: "00:03", text: "대파를 잘게 썰고, 팬에 버터를 녹여 파기름을 만든다." },
+                { t: "00:10", text: "계란 2개를 넣고 스크램블을 만들듯 크게 저어준다." },
+                { t: "00:16", text: "밥을 넣고 뭉치지 않게 풀어가며 볶는다." },
+                { t: "00:23", text: "간장(필요 시 굴소스)로 간을 맞춘다." },
+                { t: "00:30", text: "후추 톡톡, 불 끄고 한 번 더 섞어서 완성." }
+            ],
+            timeline: [
+                { t: "00:03", title: "파기름 시작", desc: "버터 + 대파로 향 올리기" },
+                { t: "00:10", title: "계란 투입", desc: "몽글몽글 스크램블 만들기" },
+                { t: "00:16", title: "밥 넣고 볶기", desc: "밥 뭉침 풀어주기" },
+                { t: "00:23", title: "간 맞추기", desc: "간장(옵션: 굴소스)로 풍미" },
+                { t: "00:30", title: "마무리", desc: "후추 + 섞기 → 완성" }
+            ]
+        };
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 2200);
+        }
+
+        function renderDemo(data) {
+            recipeMeta.textContent = `총 ${data.duration} · ${data.servings}`;
+
+            ingredientsEl.innerHTML = "";
+            data.ingredients.forEach(i => {
+                const li = document.createElement("li");
+                li.textContent = i;
+                ingredientsEl.appendChild(li);
+            });
+
+            stepsEl.innerHTML = "";
+            data.steps.forEach((s, idx) => {
+                const div = document.createElement("div");
+                div.className = "step";
+                div.innerHTML = `
+          <div class="num">${idx + 1}</div>
+          <div>
+            <p>${s.text}</p>
+            <div class="t">${s.t}</div>
+          </div>
+        `;
+                stepsEl.appendChild(div);
+            });
+
+            timelineEl.innerHTML = "";
+            data.timeline.forEach((c) => {
+                const row = document.createElement("div");
+                row.className = "shot";
+                row.innerHTML = `
+          <div class="thumb">
+            <div class="timebadge">${c.t}</div>
+          </div>
+          <div class="shotMain">
+            <p class="shotTitle">${c.title}</p>
+            <p class="shotDesc">${c.desc}</p>
+          </div>
+        `;
+                row.addEventListener("click", () => showToast(`(데모) ${c.t} 구간으로 이동 — 추후 타임클립 재생 연결`));
+                timelineEl.appendChild(row);
+            });
+
+            result.classList.add("show");
+            result.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function isLikelyYoutube(url) {
+            return /youtube\.com\/shorts\/|youtu\.be\/|youtube\.com\/watch\?/.test(url);
+        }
+
+        function runAnalyze() {
+            const url = urlInput.value.trim();
+            if (!url) {
+                showToast("링크를 먼저 넣어줘!");
+                urlInput.focus();
+                return;
+            }
+            showToast(isLikelyYoutube(url) ? "분석 중…(데모) STT → 요약 → 컷 추출" : "유튜브 링크가 아닌 것 같아. 그래도 데모 결과를 보여줄게!");
+
+            analyzeBtn.disabled = true;
+            analyzeBtn.style.opacity = .75;
+            analyzeBtn.innerHTML = "⏳ 처리 중…";
+
+            setTimeout(() => {
+                analyzeBtn.disabled = false;
+                analyzeBtn.style.opacity = 1;
+                analyzeBtn.innerHTML = "<span aria-hidden='true'>✨</span> 레시피 추출";
+                renderDemo(demoResponse);
+            }, 650);
+        }
+
+        analyzeBtn.addEventListener("click", runAnalyze);
+        urlInput.addEventListener("keydown", (e) => { if (e.key === "Enter") runAnalyze(); });
+
+        document.querySelectorAll(".chip[data-fill]").forEach(ch => {
+            ch.addEventListener("click", () => {
+                urlInput.value = ch.dataset.fill;
+                urlInput.focus();
+                showToast("예시 링크를 입력했어. 엔터 또는 버튼 클릭!");
+            });
+        });
+
+        $("#chipPaste").addEventListener("click", async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    urlInput.value = text.trim();
+                    showToast("클립보드에서 붙여넣기 완료!");
+                    urlInput.focus();
+                } else {
+                    showToast("클립보드가 비어있어.");
+                }
+            } catch (err) {
+                showToast("브라우저 권한 때문에 실패. 직접 붙여넣어줘!");
+            }
+        });
+
+        $("#btnProfile").addEventListener("click", () => showToast("(데모) 프로필 페이지로 이동"));
+        $("#btnSaved").addEventListener("click", () => showToast("(데모) 저장한 레시피 목록"));
+    </script>
+</body>
+
+</html>
