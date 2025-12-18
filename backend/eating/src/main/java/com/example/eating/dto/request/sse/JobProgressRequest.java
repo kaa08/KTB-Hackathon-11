@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class JobProgressRequest {
-    private String jobId;
     private String status;
-    private int progress;
+    private Integer progress;
+    private String step;
     private String message;
 }

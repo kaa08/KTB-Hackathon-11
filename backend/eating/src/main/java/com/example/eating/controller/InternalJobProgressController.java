@@ -1,5 +1,7 @@
 package com.example.eating.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,14 +23,10 @@ public class InternalJobProgressController {
     public ResponseEntity<Void> onProgress(
             @PathVariable String jobId, @RequestBody JobProgressRequest request) {
 
-        if (request.getJobId() == null || request.getJobId().isBlank()) {
+        sseController.sendToJob(jobId, "progress", request);
 
-        }
-
-        sseController.sendToJob(jobId, jobId, request);
-
-        if ("complete".equalsIgnoreCase(request.getStatus())) {
-            sseController.sendToJob(jobId, "complete", request);
+        if ("completed".equalsIgnoreCase(request.getStatus())) {
+            sseController.sendToJob(jobId, "completed", request);
             sseController.completeJob(jobId);
         } else if ("failed".equalsIgnoreCase(request.getStatus())) {
             sseController.sendToJob(jobId, "failed", request);
