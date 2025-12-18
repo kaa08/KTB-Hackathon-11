@@ -21,7 +21,7 @@ public class AuthService {
 
         User savedUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-        // 더미 유저와 입력된 로그인 정보 비교
+
         if (!savedUser.getEmail().equals(email) || !savedUser.getPassword().equals(password)) {
             throw new IllegalArgumentException("Invalid login credentials");
         }
