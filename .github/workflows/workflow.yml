@@ -112,6 +112,7 @@ jobs:
             $EC2_USER@$NGINX_HOST:/var/www/frontend
 
   backend-cd:
+    needs: detect-changes
     if: github.event_name == 'push' && needs.detect-changes.outputs.tag_changed == 'true' && needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-24.04
     steps:
@@ -150,7 +151,7 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_SECRET: ${{ secrets.DOCKERHUB_SECRET }}
         run: |
-          ssh $EC2_USER@$BACKEND_HOST << 'EOF'
+          ssh $EC2_USER@$BACKEND_HOST << EOF
             set -e
 
             echo "$DOCKERHUB_SECRET" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
@@ -162,6 +163,7 @@ jobs:
           EOF
 
   fastapi-cd:
+    needs: detect-changes
     if: github.event_name == 'push' && needs.detect-changes.outputs.tag_changed == 'true' && needs.detect-changes.outputs.fastapi == 'true'     
     runs-on: ubuntu-24.04
     steps:
@@ -200,7 +202,7 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_SECRET: ${{ secrets.DOCKERHUB_SECRET }}
         run: |
-          ssh $EC2_USER@$FASTAPI_HOST << 'EOF'
+          ssh $EC2_USER@$FASTAPI_HOST << EOF
             set -e
 
             echo "$DOCKERHUB_SECRET" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
