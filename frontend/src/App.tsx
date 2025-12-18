@@ -40,19 +40,36 @@ function App() {
     setTimeout(() => setToast(null), 2200);
   };
 
-  // URL에서 video ID 추출
+  // URL에서 Video ID(또는 Shortcode) 추출
+  // - YouTube: videoId (예: dQw4w9WgXcQ)
+  // - TikTok: videoId (숫자, 예: 7291234567890123456)  ※ vt/vm 짧은 링크는 "코드"만 있어 정규식만으로 videoId 추출 불가
+  // - Instagram Reels: shortcode (예: CuQx1AbCdEf)
   const extractVideoId = (inputUrl: string): string | null => {
-    const patterns = [
-      /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]+)/,
-      /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/,
-      /(?:youtu\.be\/)([a-zA-Z0-9_-]+)/,
+    const patterns: RegExp[] = [
+      // ✅ YouTube
+      /(?:^|\/\/)(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/,
+      /(?:^|\/\/)(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
+      /(?:^|\/\/)(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)/,
+
+      // ✅ TikTok (direct URL에서만 videoId 추출 가능)
+      /(?:^|\/\/)(?:www\.|m\.)?tiktok\.com\/@[^/]+\/video\/(\d+)/,
+
+      // ❌ TikTok short link (정규식으로는 "code"만 추출 가능, videoId는 없음)
+      // - https://vt.tiktok.com/{code}/
+      // - https://vm.tiktok.com/{code}/
+
+      // ✅ Instagram Reels (shortcode 추출)
+      /(?:^|\/\/)(?:www\.)?instagram\.com\/reel\/([a-zA-Z0-9_-]+)\/?/,
+      /(?:^|\/\/)(?:www\.)?instagram\.com\/(?:reel|p|tv)\/([a-zA-Z0-9_-]+)\/?/,
     ];
+
     for (const pattern of patterns) {
       const match = inputUrl.match(pattern);
       if (match) return match[1];
     }
     return null;
   };
+
 
   // URL 변경 시 video ID 업데이트
   useEffect(() => {
