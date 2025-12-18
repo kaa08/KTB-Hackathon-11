@@ -7,7 +7,7 @@ export default function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation() as any;
 
-    const [username, setUsername] = useState(""); // email이면 email로 바꿔
+    const [email, setEmail] = useState(""); // email이면 email로 바꿔
     const [password, setPassword] = useState("");
     const [toast, setToast] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -18,14 +18,14 @@ export default function LoginPage() {
     };
 
     const handleLogin = async () => {
-        if (!username.trim() || !password.trim()) {
+        if (!email.trim() || !password.trim()) {
             showToast("아이디/비밀번호를 입력해줘!");
             return;
         }
 
         setLoading(true);
         try {
-            await loginApi({ username, password });
+            await loginApi({ email, password });
 
             showToast("로그인 완료! 저장 기능을 사용할 수 있어요 ✅");
             const from = location?.state?.from || "/";
@@ -55,8 +55,8 @@ export default function LoginPage() {
                     <input
                         className="w-full px-4 py-3 rounded-2xl border border-[var(--line)] bg-white/[.96] outline-none font-semibold"
                         placeholder="아이디를 입력해 주세요"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         onKeyDown={onKeyDown}
                         disabled={loading}
                     />

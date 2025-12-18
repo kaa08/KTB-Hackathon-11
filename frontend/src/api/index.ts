@@ -117,8 +117,8 @@ export const downloadExport = async (
 /* 2) Auth (간단 로그인/회원가입) */
 /* ------------------------------------------------------------------ */
 
-export type LoginReq = { username: string; password: string };
-export type SignupReq = { username: string; password: string; nickname?: string };
+export type LoginReq = { email: string; password: string };
+export type SignupReq = { email: string; password: string; nickname?: string };
 
 export const loginApi = async (payload: LoginReq) => {
     const { data } = await api.post("/auth/login", payload);

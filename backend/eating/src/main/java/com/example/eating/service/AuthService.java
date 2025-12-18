@@ -17,8 +17,8 @@ public class AuthService {
     private final User dummyUser = new User("test@test.com", "test", "nickname");
 
     public LoginResponse login(LoginDto dto) {
-        String email = dto.getEmail();
-        String password = dto.getPassword();
+        String email = dto.getEmail().trim();
+        String password = dto.getPassword().trim();
 
         // 더미 유저와 입력된 로그인 정보 비교
         if (!dummyUser.getEmail().equals(email) || !dummyUser.getPassword().equals(password)) {
