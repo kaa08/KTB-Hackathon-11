@@ -92,8 +92,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm run typecheck || true
-          npm run build
+          npm run build:ci
 
       - uses: webfactory/ssh-agent@v0.9.0
         with:
