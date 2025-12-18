@@ -1,16 +1,27 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:8080/api',
+});
+
+
+api.interceptors.request.use((config) => {
+    const email = localStorage.getItem("login_email");
+
+    if (email && config.headers) {
+        config.headers.set("email", email);
+    }
+
+    return config;
 });
 
 export interface AnalyzeResponse {
-  job_id: string;
+  jobId: string;
   message: string;
 }
 
 export interface JobStatus {
-  job_id: string;
+  jobId: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   progress: number;
   message: string;
@@ -72,18 +83,18 @@ export interface AnalysisResult {
 }
 
 export const analyzeVideo = async (url: string): Promise<AnalyzeResponse> => {
-  const response = await api.post('/analyze', { url });
+  const response = await api.post('/recipes/analyze', { url });
   console.log('analyzeVideo response:', response.data);
   return response.data;
 };
 
 export const getJobStatus = async (jobId: string): Promise<JobStatus> => {
-  const response = await api.get(`/status/${jobId}`);
+  const response = await api.get(`/recipes/status/${jobId}`);
   return response.data;
 };
 
 export const getResult = async (jobId: string): Promise<AnalysisResult> => {
-  const response = await api.get(`/result/${jobId}`);
+  const response = await api.get(`/recipes/result/${jobId}`);
   return response.data;
 };
 
