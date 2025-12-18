@@ -9,6 +9,7 @@ import shutil
 import time
 import uuid
 import httpx
+import os
 from datetime import datetime
 from typing import Optional
 from collections import OrderedDict
@@ -601,7 +602,7 @@ async def get_stats() -> Dict[str, Any]:
 
 
 # ✅ Spring 콜백 대상 (상수로 고정)
-SPRING_BASE = "http://localhost:8080"
+SPRING_BASE = os.getenv("SPRING_BASE")
 PROGRESS_WEBHOOK_PATH = "/api/internal/jobs/{jobId}/progress"
 WEBHOOK_TIMEOUT = 5.0
 
