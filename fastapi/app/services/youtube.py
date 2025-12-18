@@ -118,6 +118,11 @@ def extract_video_id(url: str) -> Optional[str]:
         r"(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)",
         r"(?:youtu\.be\/)([a-zA-Z0-9_-]+)",
         r"(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]+)",
+        
+        r"(?:^|\/\/)(?:www\.|m\.)?tiktok\.com\/@[^/]+\/video\/(\d+)",
+
+        r"(?:^|\/\/)(?:www\.)?instagram\.com\/reel\/([a-zA-Z0-9_-]+)\/?",
+        r"(?:^|\/\/)(?:www\.)?instagram\.com\/(?:reel|p|tv)\/([a-zA-Z0-9_-]+)\/?",
     ]
 
     for pattern in patterns:
