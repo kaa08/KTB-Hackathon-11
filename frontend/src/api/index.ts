@@ -6,7 +6,7 @@ import axios from "axios";
  * - 개발/배포 모두에서 프론트는 /api만 호출
  */
 export const api = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL + "/api",
     timeout: 20000,
 });
 
