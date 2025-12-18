@@ -6,7 +6,7 @@ import { signupApi } from "../api";
 export default function SignupPage() {
     const navigate = useNavigate();
 
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [nickname, setNickname] = useState("");
     const [password, setPassword] = useState("");
     const [password2, setPassword2] = useState("");
@@ -21,7 +21,7 @@ export default function SignupPage() {
     };
 
     const handleSignup = async () => {
-        if (!username.trim() || !password.trim() || !password2.trim()) {
+        if (!email.trim() || !password.trim() || !password2.trim()) {
             showToast("필수 항목을 입력해줘!");
             return;
         }
@@ -36,7 +36,7 @@ export default function SignupPage() {
 
         setLoading(true);
         try {
-            await signupApi({ username, password, nickname: nickname.trim() || undefined });
+            await signupApi({ email, password, nickname: nickname.trim() || undefined });
 
             showToast("회원가입 완료! 로그인해볼까요? ✅");
             setTimeout(() => navigate("/login"), 350);
@@ -59,8 +59,8 @@ export default function SignupPage() {
                     <input
                         className="w-full px-4 py-3 rounded-2xl border border-[var(--line)] bg-white/[.96] outline-none font-semibold"
                         placeholder="아이디를 입력해 주세요"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         onKeyDown={onKeyDown}
                         disabled={loading}
                     />

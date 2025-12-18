@@ -7,7 +7,6 @@ import axios from "axios";
  */
 export const api = axios.create({
     baseURL: "/api",
-    withCredentials: true, // 세션/쿠키 쓰면 유지(아니면 false로 꺼도 됨)
     timeout: 20000,
 });
 
@@ -122,11 +121,13 @@ export type SignupReq = { email: string; password: string; nickname?: string };
 
 export const loginApi = async (payload: LoginReq) => {
     const { data } = await api.post("/auth/login", payload);
+    console.log(data);
     return data;
 };
 
 export const signupApi = async (payload: SignupReq) => {
-    const { data } = await api.post("/auth/signup", payload);
+    const { data } = await api.post("/user/signup", payload);
+    console.log(data);
     return data;
 };
 

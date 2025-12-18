@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.example.eating.domain.User;
 import com.example.eating.dto.request.auth.LoginDto;
 import com.example.eating.dto.response.auth.LoginResponse;
+import com.example.eating.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,16 +13,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
-    // 더미 유저 로그인 처리
-    // "loginId": "test", "loginPassword": "test"
-    private final User dummyUser = new User("test@test.com", "test", "nickname");
+    private final UserRepository userRepository;
 
     public LoginResponse login(LoginDto dto) {
         String email = dto.getEmail().trim();
         String password = dto.getPassword().trim();
 
+        User savedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         // 더미 유저와 입력된 로그인 정보 비교
-        if (!dummyUser.getEmail().equals(email) || !dummyUser.getPassword().equals(password)) {
+        if (!savedUser.getEmail().equals(email) || !savedUser.getPassword().equals(password)) {
             throw new IllegalArgumentException("Invalid login credentials");
         }
 
@@ -29,7 +30,7 @@ public class AuthService {
         return LoginResponse.builder()
                 .isLoginSuccess(true)
                 .email(email)
-                .nickname(dummyUser.getNickname())
+                .nickname(savedUser.getNickname())
                 .build();
     }
 }
