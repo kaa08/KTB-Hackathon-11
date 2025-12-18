@@ -16,7 +16,9 @@ type CachedAnalysis = {
 
 function App() {
   const navigate = useNavigate();
-  const [url, setUrl] = useState('');
+  const [inputUrl, setInputUrl] = useState('');
+  const [analyzedUrl, setAnalyzedUrl] = useState<string | null>(null);
+  const [analyzedVideoId, setAnalyzedVideoId] = useState<string | null>(null);
   const [videoId, setVideoId] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,9 +71,9 @@ function App() {
   };
 
   useEffect(() => {
-    const id = extractVideoId(url);
+    const id = extractVideoId(inputUrl);
     setVideoId(id);
-  }, [url]);
+  }, [inputUrl]);
 
   // 구간 반복 로직
   useEffect(() => {
@@ -105,10 +107,13 @@ function App() {
       if (!raw) return;
 
       const saved: CachedAnalysis = JSON.parse(raw);
-      setUrl("");
-      setVideoId(saved.videoId ?? null);
+      setInputUrl("");
+
       setJobId(saved.jobId ?? null);
       setResult(saved.result ?? null);
+
+      setAnalyzedUrl(saved.url ?? null);
+      setAnalyzedVideoId(saved.videoId ?? null);
     } catch {
       sessionStorage.removeItem(ANALYSIS_CACHE_KEY);
     }
@@ -135,14 +140,19 @@ function App() {
     sseStopRef.current?.();
     sseStopRef.current = null;
 
-    if (!url.trim()) {
+    if (!inputUrl.trim()) {
       showToast('링크를 먼저 넣어줘!');
       return;
     }
-    if (!videoId) {
+    const currentVideoId = videoId;
+    if (!currentVideoId) {
       showToast('유효한 링크가 아닌 것 같아.');
       return;
     }
+
+    // ✅ 이번 분석의 “표시 대상”을 고정
+    setAnalyzedUrl(inputUrl);
+    setAnalyzedVideoId(currentVideoId);
 
     setError(null);
     // setResult(null);
@@ -156,7 +166,7 @@ function App() {
     showToast('분석 중... STT → 요약 → 컷 추출');
 
     try {
-      const response = await analyzeVideo(url);
+      const response = await analyzeVideo(inputUrl);
       setJobId(response.jobId);
 
       sseStopRef.current = subscribe(response.jobId, {
@@ -171,13 +181,15 @@ function App() {
           setIsLoading(false);
 
           const cachePayload: CachedAnalysis = {
-            url,
-            videoId,
+            url: inputUrl,
+            videoId: currentVideoId,
             jobId: response.jobId,
             result: analysisResult,
             savedAt: Date.now(),
           };
           sessionStorage.setItem(ANALYSIS_CACHE_KEY, JSON.stringify(cachePayload));
+
+          setInputUrl("");
 
           showToast('레시피 추출 완료!');
         },
@@ -206,7 +218,7 @@ function App() {
     try {
       const text = await navigator.clipboard.readText();
       if (text) {
-        setUrl(text.trim());
+        setInputUrl(text.trim());
         showToast('클립보드에서 붙여넣기 완료!');
       } else {
         showToast('클립보드가 비어있어.');
@@ -395,7 +407,7 @@ function App() {
                 border border-[var(--line)]
                 shadow-[var(--shadow)]
                 transition-all
-                ${url ? 'border-[rgba(69,197,138,.45)] sm:translate-y-[-1px] shadow-[0_18px_42px_rgba(17,24,39,.12)]' : ''}
+                ${inputUrl ? 'border-[rgba(69,197,138,.45)] sm:translate-y-[-1px] shadow-[0_18px_42px_rgba(17,24,39,.12)]' : ''}
               `}
             >
               <svg className="hidden sm:block w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none">
@@ -405,8 +417,8 @@ function App() {
 
               <input
                 type="text"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                value={inputUrl}
+                onChange={(e) => setInputUrl(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="유튜브/틱톡/릴스 링크를 붙여넣어 주세요"
                 disabled={isLoading}
@@ -668,9 +680,9 @@ function App() {
                         </div>
                       </div>
 
-                      {videoId ? (
+                      {analyzedVideoId ? (
                         <YouTube
-                          videoId={videoId}
+                          videoId={analyzedVideoId}
                           onReady={onPlayerReady}
                           opts={{
                             width: "100%",
