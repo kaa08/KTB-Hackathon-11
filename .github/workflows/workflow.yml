@@ -78,7 +78,7 @@ jobs:
 
   frontend-cd:
     needs: detect-changes
-    if: github.event_name == 'push' && needs.detect-changes.outputs.tag_changed == 'true' && needs.detect-changes.outputs.frontend == 'true'
+    if: needs.detect-changes.outputs.tag_changed == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
@@ -115,7 +115,7 @@ jobs:
 
   backend-cd:
     needs: detect-changes
-    if: github.event_name == 'push' && needs.detect-changes.outputs.tag_changed == 'true' && needs.detect-changes.outputs.backend == 'true'
+    if: needs.detect-changes.outputs.tag_changed == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
@@ -166,7 +166,7 @@ jobs:
 
   fastapi-cd:
     needs: detect-changes
-    if: github.event_name == 'push' && needs.detect-changes.outputs.tag_changed == 'true' && needs.detect-changes.outputs.fastapi == 'true'     
+    if: needs.detect-changes.outputs.tag_changed == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
