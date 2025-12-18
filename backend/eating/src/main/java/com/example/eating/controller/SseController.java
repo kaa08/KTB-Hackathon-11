@@ -10,11 +10,14 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * SSE Hub
  * - FE: GET /api/sse/jobs/{jobId} 로 구독
  * - 내부(서비스/컨트롤러): sendToJob(jobId, "progress", payload) 로 이벤트 푸시
  */
+@Slf4j
 @RestController
 @RequestMapping("/sse")
 public class SseController {
@@ -30,7 +33,7 @@ public class SseController {
      */
     @GetMapping(value = "/jobs/{jobId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subcribeJob(@PathVariable String jobId) throws IOException {
-
+        log.info("event=job_subscribe Method=GET path=/sse/jobs/{jobId} jobId={}", jobId);
         SseEmitter emitter = new SseEmitter(0L); // 타임아웃 없음
         String subscriberId = UUID.randomUUID().toString();
 
@@ -45,13 +48,13 @@ public class SseController {
                         "jobId", jobId,
                         "subscriberId", subscriberId,
                         "timestamp", Instant.now().toString())));
-
+        log.info("event=test_connection eventName={}", "connected");
         // 연결 종료 / 에러 / 타임아웃 시 정리
         Runnable cleanup = () -> removeEmitter(jobId, subscriberId);
         emitter.onCompletion(cleanup);
         emitter.onTimeout(cleanup);
         emitter.onError(e -> removeEmitter(jobId, subscriberId));
-
+        log.info("event=SSE_connection_clenup jobId={} subscriberId", jobId, subscriberId);
         return emitter;
     }
 
@@ -88,6 +91,7 @@ public class SseController {
 
             }
         });
+        emittersByJob.remove(jobId);
     }
 
     private void removeEmitter(String jobId, String subscriberId) {
