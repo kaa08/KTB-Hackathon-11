@@ -1,5 +1,6 @@
 package com.example.eating.controller;
 
+import com.example.eating.APIResponse;
 import com.example.eating.dto.request.recipe.RecipeExtractRequest;
 import com.example.eating.dto.response.job.RecipeJobCreateResponse;
 import com.example.eating.dto.response.job.RecipeJobStatusResponse;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/recipes")
+@RequestMapping("/recipes")
 public class RecipeAnalyzeController {
 
     private final RecipeJobService recipeJobService;
@@ -32,11 +33,11 @@ public class RecipeAnalyzeController {
     }
 
     @GetMapping("/result/{jobId}")
-    public RecipeResponse getResult(
+    public APIResponse<RecipeResponse> getResult(
             @RequestHeader("email") String email,
             @PathVariable String jobId
     ) {
-        return recipeJobService.getResultAndSave(email, jobId);
+        return APIResponse.success("", recipeJobService.getResultAndSave(email, jobId));
     }
 
 

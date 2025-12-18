@@ -27,6 +27,9 @@ export default function LoginPage() {
         try {
             await loginApi({ email, password });
 
+            localStorage.setItem("login_email", email);
+
+
             showToast("로그인 완료! 저장 기능을 사용할 수 있어요 ✅");
             const from = location?.state?.from || "/";
             setTimeout(() => navigate(from), 250);

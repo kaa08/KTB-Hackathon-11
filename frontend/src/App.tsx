@@ -197,8 +197,8 @@ function App() {
 
     try {
       const response = await analyzeVideo(url);
-      setJobId(response.job_id);
-      pollStatus(response.job_id);
+      setJobId(response.jobId);
+      pollStatus(response.jobId);
     } catch (err) {
       setError('분석 시작 중 오류가 발생했습니다.');
       setIsLoading(false);
